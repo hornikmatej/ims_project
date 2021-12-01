@@ -5,7 +5,7 @@
 EXEC = sho
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall 
-LDLIBS = -L/usr/local/lib/
+LDLIBS = /usr/local/lib/simlib.a -lm
 
 all: $(EXEC)
 
