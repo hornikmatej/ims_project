@@ -37,6 +37,26 @@ Store Montaz_zadny_kryt("Z5", POC_STROJOV_MONTAZ_ZADNY_KRYT);
 Store Montaz_klapky("Z6", POC_STROJOV_MONTAZ_KLAPKY);
 Store Montaz_predne_dvere("Z7", POC_STROJOV_MONTAZ_PREDNE_DVERE);
 
-int main(){
-    printf("Hello world\n");
+int main() // popis experimentu
+{
+    SetOutput("samoo.dat");
+    Init(0, 1000);
+    //(new Prichody)->Activate(); // start generatora
+    Run();
+    // tisk statistik:
+
+    /*
+    celk.Output();
+    Montaz_panel.Output();
+    Montaz_podstava.Output();
+    Zeriav.Output();
+    Montaz_kable.Output();
+    Montaz_zadny_kryt.Output();
+    Montaz_klapky.Output();
+    Montaz_predne_dvere.Output();
+
+    for (int a = 0; a < POC_POKLADEN; a++)
+        Pokladny[a].Output();
+
+    */
 }
