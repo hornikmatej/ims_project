@@ -7,4 +7,8 @@ jednotky času v systeme su minuty
 */
 
 #include "simlib.h"
-#include "stdio.h"
+#include <stdio.h>
+
+int main(){
+    printf("Hello world\n");
+}
