@@ -11,7 +11,7 @@ jednotky času v systeme su minuty
 
 const int POC_STROJOV_MONTAZ_PANEL = 3;
 const int POC_STROJOV_MONTAZ_PODSTAVA = 3;
-const int POC_ZERIAV = 1;
+//const int POC_ZERIAV = 1;
 const int POC_STROJOV_MONTAZ_KABLE = 3;
 const int POC_STROJOV_MONTAZ_ZADNY_KRYT = 2;
 const int POC_STROJOV_MONTAZ_KLAPKY = 2;
@@ -36,9 +36,8 @@ class Vyrobok : public Process
     void Behavior()
     {
         double prichod = Time; // cas prichodu
-
-    } // Behavior
-};    // Vyrobok
+    }                          // Behavior
+};                             // Vyrobok
 
 class Prichody : public Event
 {
@@ -51,7 +50,7 @@ class Prichody : public Event
 
 int main() // popis experimentu
 {
-    SetOutput("samoo.dat");
+    SetOutput("data.dat");
     Init(0, 1000);
     //(new Prichody)->Activate(); // start generatora
     Run();
