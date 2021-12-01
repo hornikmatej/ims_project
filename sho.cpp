@@ -17,25 +17,37 @@ const int POC_STROJOV_MONTAZ_ZADNY_KRYT = 2;
 const int POC_STROJOV_MONTAZ_KLAPKY = 2;
 const int POC_STROJOV_MONTAZ_PREDNE_DVERE = 4;
 
-///////////////////////////// NEVIEM CI TAKTO /////////////////////////////
-
 //stroje v zavode
-Facility Montaz_panel[POC_STROJOV_MONTAZ_PANEL];
-Facility Montaz_podstava[POC_STROJOV_MONTAZ_PODSTAVA];
-Facility Zeriav[POC_ZERIAV];
-Facility Montaz_kable[POC_STROJOV_MONTAZ_KABLE];
-Facility Montaz_zadny_kryt[POC_STROJOV_MONTAZ_ZADNY_KRYT];
-Facility Montaz_klapky[POC_STROJOV_MONTAZ_KLAPKY];
-Facility Montaz_predne_dvere[POC_STROJOV_MONTAZ_PREDNE_DVERE];
-///////////////////////  ALEBO TAKTO  //////////////////////////////////////
 
 Store Montaz_panel("Z1", POC_STROJOV_MONTAZ_PANEL);
 Store Montaz_podstava("Z2", POC_STROJOV_MONTAZ_PODSTAVA);
-Store Zeriav("Z3", POC_ZERIAV);
+
+Facility Zeriav("Z3");
+
 Store Montaz_kable("Z4", POC_STROJOV_MONTAZ_KABLE);
 Store Montaz_zadny_kryt("Z5", POC_STROJOV_MONTAZ_ZADNY_KRYT);
 Store Montaz_klapky("Z6", POC_STROJOV_MONTAZ_KLAPKY);
 Store Montaz_predne_dvere("Z7", POC_STROJOV_MONTAZ_PREDNE_DVERE);
+
+Histogram celk("Celkova doba v systeme", 0, 5, 20);
+
+class Vyrobok : public Process
+{
+    void Behavior()
+    {
+        double prichod = Time; // cas prichodu
+
+    } // Behavior
+};    // Vyrobok
+
+class Prichody : public Event
+{
+    void Behavior()
+    {
+        //(new Vyrobok)->Activate();
+        //Activate(Time + Exponential(8));
+    }
+};
 
 int main() // popis experimentu
 {
@@ -45,7 +57,6 @@ int main() // popis experimentu
     Run();
     // tisk statistik:
 
-    /*
     celk.Output();
     Montaz_panel.Output();
     Montaz_podstava.Output();
@@ -54,9 +65,4 @@ int main() // popis experimentu
     Montaz_zadny_kryt.Output();
     Montaz_klapky.Output();
     Montaz_predne_dvere.Output();
-
-    for (int a = 0; a < POC_POKLADEN; a++)
-        Pokladny[a].Output();
-
-    */
 }
