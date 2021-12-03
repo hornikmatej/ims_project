@@ -49,6 +49,51 @@ Queue Q_Z8_zas;
 
 Histogram celk("Celkova doba v systeme", 220, 20, 15);
 
+// trieda pre striedania dna a noci
+class Den: public Process{
+    unsigned short den;
+    void Behavior(){
+        Priority= 1; // priorita pri zaberani pristrojov
+        Wait(8* 60); // modelovi cas je v minutach
+        den = 1;
+        while(1){
+            //nastala noc tak stroje pozastavi
+            Enter(Montaz_panel, 3);
+            Enter(Montaz_podstava, 3);
+            Seize(Zeriav);
+            Enter(Montaz_kable, 3);
+            Enter(Montaz_zadny_kryt, 2);
+            Enter(Montaz_klapky, 2);
+            Enter(Montaz_predne_dvere, 4);
+            Seize(Otocna_panelov);
+
+            if(den == 5){
+                //je víkend
+                Wait((24+24+16)*60);
+                den = 1;
+            }
+            else{
+                // noc
+                Wait(16*60);
+                den++;
+            }
+            //nastal den tak stroje pracuju
+            Leave(Montaz_panel, 3);
+            Leave(Montaz_podstava, 3);
+            Release(Zeriav);
+            Leave(Montaz_kable, 3);
+            Leave(Montaz_zadny_kryt, 2);
+            Leave(Montaz_klapky, 2);
+            Leave(Montaz_predne_dvere, 4);
+            Release(Otocna_panelov);
+
+            Wait(8*60);
+        }
+    }
+
+};
+
+
 class Vyrobok : public Process
 {
     void Behavior()
@@ -265,6 +310,7 @@ int main() // popis experimentu
     SetOutput("data.dat");
     Init(0, 1000);
     (new Prichody)->Activate(); // start generatora
+    (new Den)->Activate();
     Run();
     // tisk statistik:
     celk.Output();
