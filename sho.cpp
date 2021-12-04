@@ -48,108 +48,6 @@ Queue Q_Z8;
 Queue Q_Z8_zas;
 
 Histogram celk("Celkova doba v systeme", 220, 20, 15);
-bool is_day;
-
-// trieda pre striedania dna a noci
-class Den : public Process
-{
-    unsigned short den;
-    void Behavior()
-    {
-        Priority = 1; // priorita pri zaberani pristrojov
-        is_day = true;
-        Wait(8 * 60); // modelovy cas je v minutach
-        den = 1;
-        while (1)
-        {
-            //nastala noc tak stroje pozastavi
-            is_day = false;
-            long unsigned int noc_panel_zabrane = 0;
-            long unsigned int noc_podstava_zabrane = 0;
-            long unsigned int noc_kable_zabrane = 0;
-            long unsigned int noc_zadny_kryt_zabrane = 0;
-            long unsigned int noc_klapky_zabrane = 0;
-            long unsigned int noc_predne_dvere_zabrane = 0;
-            int cakanie_na_stroje = 0;
-
-            while ((Montaz_panel.Capacity() != noc_panel_zabrane) || (Montaz_podstava.Capacity() != noc_podstava_zabrane) ||
-                   (Montaz_kable.Capacity() != noc_kable_zabrane) || (Montaz_zadny_kryt.Capacity() != noc_zadny_kryt_zabrane) ||
-                   (Montaz_klapky.Capacity() != noc_klapky_zabrane) || (Montaz_predne_dvere.Capacity() != noc_predne_dvere_zabrane))
-            {
-                int pocet_zabratych = Montaz_panel.Free();
-                Enter(Montaz_panel, pocet_zabratych);
-                noc_panel_zabrane = noc_panel_zabrane + pocet_zabratych;
-
-                pocet_zabratych = Montaz_podstava.Free();
-                Enter(Montaz_podstava, pocet_zabratych);
-                noc_podstava_zabrane = noc_podstava_zabrane + pocet_zabratych;
-
-                pocet_zabratych = Montaz_kable.Free();
-                Enter(Montaz_kable, pocet_zabratych);
-                noc_kable_zabrane = noc_kable_zabrane + pocet_zabratych;
-
-                pocet_zabratych = Montaz_zadny_kryt.Free();
-                Enter(Montaz_zadny_kryt, pocet_zabratych);
-                noc_zadny_kryt_zabrane = noc_zadny_kryt_zabrane + pocet_zabratych;
-
-                pocet_zabratych = Montaz_klapky.Free();
-                Enter(Montaz_klapky, pocet_zabratych);
-                noc_klapky_zabrane = noc_klapky_zabrane + pocet_zabratych;
-
-                pocet_zabratych = Montaz_predne_dvere.Free();
-                Enter(Montaz_predne_dvere, pocet_zabratych);
-                noc_predne_dvere_zabrane = noc_predne_dvere_zabrane + pocet_zabratych;
-
-                Wait(1);
-                cakanie_na_stroje++;
-            }
-            printf("\n%ld = %ld %ld %ld %ld %ld %ld ", Montaz_panel.Capacity(), noc_panel_zabrane, noc_podstava_zabrane, noc_kable_zabrane, noc_zadny_kryt_zabrane, noc_klapky_zabrane, noc_predne_dvere_zabrane);
-            //printf("\n%d 1 - True, 0 - False\n", (Montaz_panel.Capacity() != noc_panel_zabrane) || (Montaz_podstava.Capacity() != noc_podstava_zabrane));
-
-            while (Zeriav.Busy())
-            {
-                Wait(1);
-                cakanie_na_stroje++;
-            }
-
-            Seize(Zeriav);
-
-            while (Otocna_panelov.Busy())
-            {
-                Wait(1);
-                cakanie_na_stroje++;
-            }
-
-            Seize(Otocna_panelov);
-
-            if (den == 5)
-            {
-                //je víkend
-                Wait((24 + 24 + 16) * 60 - cakanie_na_stroje);
-                den = 1;
-            }
-            else
-            {
-                // noc
-                Wait(16 * 60 - cakanie_na_stroje);
-                den++;
-            }
-
-            //nastal den tak stroje pracuju
-            is_day = true;
-            Leave(Montaz_panel, POC_STROJOV_MONTAZ_PANEL);
-            Leave(Montaz_podstava, POC_STROJOV_MONTAZ_PODSTAVA);
-            Release(Zeriav);
-            Leave(Montaz_kable, POC_STROJOV_MONTAZ_KABLE);
-            Leave(Montaz_zadny_kryt, POC_STROJOV_MONTAZ_ZADNY_KRYT);
-            Leave(Montaz_klapky, POC_STROJOV_MONTAZ_KLAPKY);
-            Leave(Montaz_predne_dvere, POC_STROJOV_MONTAZ_PREDNE_DVERE);
-            Release(Otocna_panelov);
-
-            Wait(8 * 60);
-        }
-    }
-};
 
 class Vyrobok : public Process
 {
@@ -349,7 +247,7 @@ class Prichody : public Event
     void Behavior()
     {
         int pocet = Montaz_panel.Free();
-        if (pocet != 0 && is_day)
+        if (pocet != 0)
         {
             printf("\n%0.0f minuta-", Time);
             for (int i = 1; i < pocet + 1; i++)
@@ -367,7 +265,6 @@ int main() // popis experimentu
     SetOutput("data.dat");
     Init(0, 10000);
     (new Prichody)->Activate(); // start generatora
-    (new Den)->Activate();
     Run();
     // tisk statistik:
     celk.Output();
