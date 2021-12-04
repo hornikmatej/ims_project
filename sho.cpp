@@ -27,7 +27,7 @@ Store Montaz_predne_dvere("Z7", POC_STROJOV_MONTAZ_PREDNE_DVERE);
 Facility Otocna_panelov("Z8");
 
 //zasobniky na linke
-Store Zasobnik_pred_Z2("Zasobnik pred Z2", 9);
+Store Zasobnik_pred_Z2("Zasobnik pred Z2", 18);
 Store Zasobnik_pred_Z3("Zasobnik pred Z3", 2);
 Facility Zasobnik_pred_Z5("Zasobnik pred Z5");
 Facility Zasobnik_pred_Z6("Zasobnik pred Z6");
@@ -64,29 +64,79 @@ class Den : public Process
         {
             //nastala noc tak stroje pozastavi
             is_day = false;
-            Enter(Montaz_panel, POC_STROJOV_MONTAZ_PANEL);
-            Enter(Montaz_podstava, POC_STROJOV_MONTAZ_PODSTAVA);
+            long unsigned int noc_panel_zabrane = 0;
+            long unsigned int noc_podstava_zabrane = 0;
+            long unsigned int noc_kable_zabrane = 0;
+            long unsigned int noc_zadny_kryt_zabrane = 0;
+            long unsigned int noc_klapky_zabrane = 0;
+            long unsigned int noc_predne_dvere_zabrane = 0;
+            int cakanie_na_stroje = 0;
+
+            while ((Montaz_panel.Capacity() != noc_panel_zabrane) || (Montaz_podstava.Capacity() != noc_podstava_zabrane) ||
+                   (Montaz_kable.Capacity() != noc_kable_zabrane) || (Montaz_zadny_kryt.Capacity() != noc_zadny_kryt_zabrane) ||
+                   (Montaz_klapky.Capacity() != noc_klapky_zabrane) || (Montaz_predne_dvere.Capacity() != noc_predne_dvere_zabrane))
+            {
+                int pocet_zabratych = Montaz_panel.Free();
+                Enter(Montaz_panel, pocet_zabratych);
+                noc_panel_zabrane = noc_panel_zabrane + pocet_zabratych;
+
+                pocet_zabratych = Montaz_podstava.Free();
+                Enter(Montaz_podstava, pocet_zabratych);
+                noc_podstava_zabrane = noc_podstava_zabrane + pocet_zabratych;
+
+                pocet_zabratych = Montaz_kable.Free();
+                Enter(Montaz_kable, pocet_zabratych);
+                noc_kable_zabrane = noc_kable_zabrane + pocet_zabratych;
+
+                pocet_zabratych = Montaz_zadny_kryt.Free();
+                Enter(Montaz_zadny_kryt, pocet_zabratych);
+                noc_zadny_kryt_zabrane = noc_zadny_kryt_zabrane + pocet_zabratych;
+
+                pocet_zabratych = Montaz_klapky.Free();
+                Enter(Montaz_klapky, pocet_zabratych);
+                noc_klapky_zabrane = noc_klapky_zabrane + pocet_zabratych;
+
+                pocet_zabratych = Montaz_predne_dvere.Free();
+                Enter(Montaz_predne_dvere, pocet_zabratych);
+                noc_predne_dvere_zabrane = noc_predne_dvere_zabrane + pocet_zabratych;
+
+                Wait(1);
+                cakanie_na_stroje++;
+            }
+            printf("\n%ld = %ld %ld %ld %ld %ld %ld ", Montaz_panel.Capacity(), noc_panel_zabrane, noc_podstava_zabrane, noc_kable_zabrane, noc_zadny_kryt_zabrane, noc_klapky_zabrane, noc_predne_dvere_zabrane);
+            //printf("\n%d 1 - True, 0 - False\n", (Montaz_panel.Capacity() != noc_panel_zabrane) || (Montaz_podstava.Capacity() != noc_podstava_zabrane));
+
+            while (Zeriav.Busy())
+            {
+                Wait(1);
+                cakanie_na_stroje++;
+            }
+
             Seize(Zeriav);
-            Enter(Montaz_kable, POC_STROJOV_MONTAZ_KABLE);
-            Enter(Montaz_zadny_kryt, POC_STROJOV_MONTAZ_ZADNY_KRYT);
-            Enter(Montaz_klapky, POC_STROJOV_MONTAZ_KLAPKY);
-            Enter(Montaz_predne_dvere, POC_STROJOV_MONTAZ_PREDNE_DVERE);
+
+            while (Otocna_panelov.Busy())
+            {
+                Wait(1);
+                cakanie_na_stroje++;
+            }
+
             Seize(Otocna_panelov);
 
             if (den == 5)
             {
                 //je víkend
-                Wait((24 + 24 + 16) * 60);
+                Wait((24 + 24 + 16) * 60 - cakanie_na_stroje);
                 den = 1;
             }
             else
             {
                 // noc
-                Wait(16 * 60);
+                Wait(16 * 60 - cakanie_na_stroje);
                 den++;
             }
-            is_day = true;
+
             //nastal den tak stroje pracuju
+            is_day = true;
             Leave(Montaz_panel, POC_STROJOV_MONTAZ_PANEL);
             Leave(Montaz_podstava, POC_STROJOV_MONTAZ_PODSTAVA);
             Release(Zeriav);
