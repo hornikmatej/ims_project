@@ -27,7 +27,7 @@ Store Montaz_predne_dvere("Z7", POC_STROJOV_MONTAZ_PREDNE_DVERE);
 Facility Otocna_panelov("Z8");
 
 //zasobniky na linke
-Store Zasobnik_pred_Z2("Zasobnik pred Z2", 18);
+Store Zasobnik_pred_Z2("Zasobnik pred Z2", 9);
 Store Zasobnik_pred_Z3("Zasobnik pred Z3", 2);
 Facility Zasobnik_pred_Z5("Zasobnik pred Z5");
 Facility Zasobnik_pred_Z6("Zasobnik pred Z6");
@@ -74,12 +74,11 @@ class Vyrobok : public Process
         }
         Leave(Montaz_panel, 1);
 
-        if (Q_Z2_zas.Length() > 0 && Montaz_podstava.Capacity() != Montaz_podstava.Used())
+        if (Q_Z2.Length() > 0 && Montaz_podstava.Capacity() != Montaz_podstava.Used())
         {
-            (Q_Z2_zas.GetFirst())->Activate();
+            (Q_Z2.GetFirst())->Activate();
         }
-
-        if (Montaz_podstava.Capacity() == Montaz_podstava.Used())
+        else if (Montaz_podstava.Capacity() == Montaz_podstava.Used() && !Zasobnik_pred_Z2.Full())
         {
             Enter(Zasobnik_pred_Z2, 1);
             Into(Q_Z2);
@@ -88,6 +87,12 @@ class Vyrobok : public Process
         }
         // Z2
         Enter(Montaz_podstava, 1);
+
+        if (Q_Z2_zas.Length() > 0)
+        {
+            (Q_Z2_zas.GetFirst())->Activate();
+        }
+
         Wait(Normal(75.5, 5));
         if (Zasobnik_pred_Z3.Full())
         {
@@ -101,12 +106,11 @@ class Vyrobok : public Process
             (Q_Z2.GetFirst())->Activate();
         }
 
-        if (Q_Z3_zas.Length() > 0 && !Zeriav.Busy())
+        if (Q_Z3.Length() > 0 && !Zeriav.Busy())
         {
-            (Q_Z3_zas.GetFirst())->Activate();
+            (Q_Z3.GetFirst())->Activate();
         }
-
-        if (Zeriav.Busy())
+        else if (Zeriav.Busy() && !Zasobnik_pred_Z3.Full())
         {
             Enter(Zasobnik_pred_Z3, 1);
             Into(Q_Z3);
@@ -116,6 +120,10 @@ class Vyrobok : public Process
 
         // Z3
         Seize(Zeriav);
+        if (Q_Z3_zas.Length() > 0 && !Zeriav.Busy())
+        {
+            (Q_Z3_zas.GetFirst())->Activate();
+        }
         Wait(Uniform(3, 5));
         Release(Zeriav);
 
@@ -133,12 +141,12 @@ class Vyrobok : public Process
         }
         Leave(Montaz_kable, 1);
 
-        if (Q_Z5_zas.Length() > 0 && Montaz_zadny_kryt.Capacity() != Montaz_zadny_kryt.Used())
+        if (Q_Z5.Length() > 0 && Montaz_zadny_kryt.Capacity() != Montaz_zadny_kryt.Used())
         {
-            (Q_Z5_zas.GetFirst())->Activate();
+            (Q_Z5.GetFirst())->Activate();
         }
 
-        if (Montaz_zadny_kryt.Capacity() == Montaz_zadny_kryt.Used())
+        else if (Montaz_zadny_kryt.Capacity() == Montaz_zadny_kryt.Used() && !Zasobnik_pred_Z5.Busy())
         {
             Seize(Zasobnik_pred_Z5);
             Into(Q_Z5);
@@ -148,6 +156,12 @@ class Vyrobok : public Process
 
         // Z5
         Enter(Montaz_zadny_kryt, 1);
+
+        if (Q_Z5_zas.Length() > 0)
+        {
+            (Q_Z5_zas.GetFirst())->Activate();
+        }
+
         Wait(Normal(9, 2));
         if (Zasobnik_pred_Z6.Busy())
         {
@@ -166,7 +180,7 @@ class Vyrobok : public Process
             (Q_Z6.GetFirst())->Activate();
         }
 
-        if (Montaz_klapky.Capacity() == Montaz_klapky.Used())
+        else if (Montaz_klapky.Capacity() == Montaz_klapky.Used() && !Zasobnik_pred_Z6.Busy())
         {
             Seize(Zasobnik_pred_Z6);
             Into(Q_Z6);
@@ -175,6 +189,12 @@ class Vyrobok : public Process
         }
         // Z6
         Enter(Montaz_klapky, 1);
+
+        if (Q_Z6_zas.Length() > 0 && Montaz_klapky.Capacity() != Montaz_klapky.Used())
+        {
+            (Q_Z6_zas.GetFirst())->Activate();
+        }
+
         Wait(Normal(11.1, 3));
         if (Zasobnik_pred_Z7.Busy())
         {
@@ -192,8 +212,7 @@ class Vyrobok : public Process
         {
             (Q_Z7.GetFirst())->Activate();
         }
-
-        if (Montaz_predne_dvere.Capacity() == Montaz_predne_dvere.Used())
+        else if (Montaz_predne_dvere.Capacity() == Montaz_predne_dvere.Used() && !Zasobnik_pred_Z6.Busy())
         {
             Seize(Zasobnik_pred_Z7);
             Into(Q_Z7);
@@ -202,6 +221,12 @@ class Vyrobok : public Process
         }
         // Z7
         Enter(Montaz_predne_dvere, 1);
+
+        if (Q_Z7_zas.Length() > 0 && Montaz_predne_dvere.Capacity() != Montaz_predne_dvere.Used())
+        {
+            (Q_Z7_zas.GetFirst())->Activate();
+        }
+
         Wait(Normal(61, 6));
         if (Zasobnik_pred_Z8.Full())
         {
@@ -215,12 +240,12 @@ class Vyrobok : public Process
             (Q_Z7.GetFirst())->Activate();
         }
 
-        if (Q_Z8_zas.Length() > 0 && !Otocna_panelov.Busy())
+        if (Q_Z8.Length() > 0 && !Otocna_panelov.Busy())
         {
-            (Q_Z8_zas.GetFirst())->Activate();
+            (Q_Z8.GetFirst())->Activate();
         }
 
-        if (Otocna_panelov.Busy())
+        else if (Otocna_panelov.Busy() && !Zasobnik_pred_Z8.Full())
         {
             Enter(Zasobnik_pred_Z8, 1);
             Into(Q_Z8);
@@ -230,6 +255,10 @@ class Vyrobok : public Process
 
         // Z8
         Seize(Otocna_panelov);
+        if (Q_Z8_zas.Length() > 0 && !Otocna_panelov.Busy())
+        {
+            (Q_Z8_zas.GetFirst())->Activate();
+        }
         Wait(1);
         Release(Otocna_panelov);
 
