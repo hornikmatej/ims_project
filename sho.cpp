@@ -50,49 +50,52 @@ Queue Q_Z8_zas;
 Histogram celk("Celkova doba v systeme", 220, 20, 15);
 
 // trieda pre striedania dna a noci
-class Den: public Process{
+class Den : public Process
+{
     unsigned short den;
-    void Behavior(){
-        Priority= 1; // priorita pri zaberani pristrojov
-        Wait(8* 60); // modelovi cas je v minutach
+    void Behavior()
+    {
+        Priority = 1; // priorita pri zaberani pristrojov
+        Wait(8 * 60); // modelovi cas je v minutach
         den = 1;
-        while(1){
+        while (1)
+        {
             //nastala noc tak stroje pozastavi
-            Enter(Montaz_panel, 3);
-            Enter(Montaz_podstava, 3);
+            Enter(Montaz_panel, POC_STROJOV_MONTAZ_PANEL);
+            Enter(Montaz_podstava, POC_STROJOV_MONTAZ_PODSTAVA);
             Seize(Zeriav);
-            Enter(Montaz_kable, 3);
-            Enter(Montaz_zadny_kryt, 2);
-            Enter(Montaz_klapky, 2);
-            Enter(Montaz_predne_dvere, 4);
+            Enter(Montaz_kable, POC_STROJOV_MONTAZ_KABLE);
+            Enter(Montaz_zadny_kryt, POC_STROJOV_MONTAZ_ZADNY_KRYT);
+            Enter(Montaz_klapky, POC_STROJOV_MONTAZ_KLAPKY);
+            Enter(Montaz_predne_dvere, POC_STROJOV_MONTAZ_PREDNE_DVERE);
             Seize(Otocna_panelov);
 
-            if(den == 5){
+            if (den == 5)
+            {
                 //je víkend
-                Wait((24+24+16)*60);
+                Wait((24 + 24 + 16) * 60);
                 den = 1;
             }
-            else{
+            else
+            {
                 // noc
-                Wait(16*60);
+                Wait(16 * 60);
                 den++;
             }
             //nastal den tak stroje pracuju
-            Leave(Montaz_panel, 3);
-            Leave(Montaz_podstava, 3);
+            Leave(Montaz_panel, POC_STROJOV_MONTAZ_PANEL);
+            Leave(Montaz_podstava, POC_STROJOV_MONTAZ_PODSTAVA);
             Release(Zeriav);
-            Leave(Montaz_kable, 3);
-            Leave(Montaz_zadny_kryt, 2);
-            Leave(Montaz_klapky, 2);
-            Leave(Montaz_predne_dvere, 4);
+            Leave(Montaz_kable, POC_STROJOV_MONTAZ_KABLE);
+            Leave(Montaz_zadny_kryt, POC_STROJOV_MONTAZ_ZADNY_KRYT);
+            Leave(Montaz_klapky, POC_STROJOV_MONTAZ_KLAPKY);
+            Leave(Montaz_predne_dvere, POC_STROJOV_MONTAZ_PREDNE_DVERE);
             Release(Otocna_panelov);
 
-            Wait(8*60);
+            Wait(8 * 60);
         }
     }
-
 };
-
 
 class Vyrobok : public Process
 {
@@ -100,11 +103,11 @@ class Vyrobok : public Process
     {
         double prichod = Time; // cas prichodu
         // FACILITY
-        // Seize(drtic_kuz);
-        // Release(drtic_kuz);
+        // Seize(stroj);
+        // Release(stroj);
         // STORE
-        // Enter(predehrivac, 1);
-        // Leave(predehrivac, 1);
+        // Enter(stroj, 1);
+        // Leave(stroj, 1);
         // WAIT
         // Wait(Normal(20));
         // Wait(1);
@@ -308,7 +311,7 @@ class Prichody : public Event
 int main() // popis experimentu
 {
     SetOutput("data.dat");
-    Init(0, 1000);
+    Init(0, 10000);
     (new Prichody)->Activate(); // start generatora
     (new Den)->Activate();
     Run();
