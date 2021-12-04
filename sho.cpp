@@ -48,16 +48,20 @@ Queue Q_Z8;
 Queue Q_Z8_zas;
 
 Histogram celk("Celkova doba v systeme", 220, 20, 15);
+bool is_day;
+
 
 // trieda pre striedania dna a noci
 class Den: public Process{
     unsigned short den;
     void Behavior(){
         Priority= 1; // priorita pri zaberani pristrojov
-        Wait(8* 60); // modelovi cas je v minutach
+        is_day = true;
+        Wait(8* 60); // modelovy cas je v minutach
         den = 1;
         while(1){
             //nastala noc tak stroje pozastavi
+            is_day = false;
             Enter(Montaz_panel, 3);
             Enter(Montaz_podstava, 3);
             Seize(Zeriav);
@@ -77,6 +81,7 @@ class Den: public Process{
                 Wait(16*60);
                 den++;
             }
+            is_day = true;
             //nastal den tak stroje pracuju
             Leave(Montaz_panel, 3);
             Leave(Montaz_podstava, 3);
