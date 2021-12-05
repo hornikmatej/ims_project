@@ -133,7 +133,7 @@ class Vyrobok : public Process
         }
         // Z4
         Enter(Montaz_kable, 1);
-        Wait(Normal(30.9, 7));
+        Wait(Normal(30.9, 5));
         if (Zasobnik_pred_Z5.Busy())
         {
             Into(Q_Z5_zas);
@@ -227,7 +227,7 @@ class Vyrobok : public Process
             (Q_Z7_zas.GetFirst())->Activate();
         }
 
-        Wait(Normal(61, 6));
+        Wait(Normal(61, 5));
         if (Zasobnik_pred_Z8.Full())
         {
             Into(Q_Z8_zas);
