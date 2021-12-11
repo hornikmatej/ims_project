@@ -4,8 +4,8 @@
 
 EXEC = sho
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall 
-LDLIBS = /usr/local/lib/simlib.a -lm
+CXXFLAGS = -std=c++17 -Wall
+LDLIBS =  -lsimlib #/usr/local/lib/simlib.a
 
 all: $(EXEC)
 
@@ -13,7 +13,7 @@ $(EXEC): sho.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDLIBS)
 
 %.o: %.cpp 
-	$(CXX) $(CXXFLAGS) -c -o $@ $^ $(LDLIBS)
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
 .PHONY: 
 clean:
