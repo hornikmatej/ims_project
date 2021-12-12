@@ -24,4 +24,4 @@ run: ./sho
 	./sho
 
 zip:
-	zip -r $(ZIP_NAME) sho.cpp experiment_data Makefile
+	zip -r $(ZIP_NAME) sho.cpp experiment_data Makefile dokumentacia.pdf README.md
