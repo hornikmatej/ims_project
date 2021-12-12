@@ -21,7 +21,7 @@ clean:
 	rm -f $(EXEC) *.o $(ZIP_NAME)
 
 run: ./sho
-	./sho $(E)
+	./sho
 
 zip:
 	zip -r $(ZIP_NAME) sho.cpp experiment_data Makefile
