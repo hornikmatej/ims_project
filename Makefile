@@ -18,3 +18,6 @@ $(EXEC): sho.o
 .PHONY: 
 clean:
 	rm -f $(EXEC) *.o
+
+run: ./sho
+	./sho $(E)
