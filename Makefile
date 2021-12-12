@@ -6,6 +6,7 @@ EXEC = sho
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall
 LDLIBS =  -lsimlib #/usr/local/lib/simlib.a
+ZIP_NAME = 10_xbrnaf00_xhorni20.zip
 
 all: $(EXEC)
 
@@ -17,7 +18,10 @@ $(EXEC): sho.o
 
 .PHONY: 
 clean:
-	rm -f $(EXEC) *.o
+	rm -f $(EXEC) *.o $(ZIP_NAME)
 
 run: ./sho
 	./sho $(E)
+
+zip:
+	zip -r $(ZIP_NAME) sho.cpp experiment_data Makefile
