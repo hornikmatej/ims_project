@@ -12,10 +12,10 @@ jednotky času v systeme su minuty
 #include <iostream>
 
 int POC_STROJOV_MONTAZ_PANEL = 3;
-int POC_STROJOV_MONTAZ_PODSTAVA = 5;
-int POC_STROJOV_MONTAZ_KABLE = 20;
+int POC_STROJOV_MONTAZ_PODSTAVA = 3;
+int POC_STROJOV_MONTAZ_KABLE = 3;
 int POC_STROJOV_MONTAZ_ZADNY_KRYT = 2;
-int POC_STROJOV_MONTAZ_KLAPKY = 2;
+int POC_STROJOV_MONTAZ_KLAPKY = 5;
 int POC_STROJOV_MONTAZ_PREDNE_DVERE = 4;
 
 //stroje v zavode
@@ -62,15 +62,6 @@ class Vyrobok : public Process
     void Behavior()
     {
         double prichod = Time; // cas prichodu
-        // FACILITY
-        // Seize(stroj);
-        // Release(stroj);
-        // STORE
-        // Enter(stroj, 1);
-        // Leave(stroj, 1);
-        // WAIT
-        // Wait(Normal(20));
-        // Wait(1);
 
         // Z1
         Enter(Montaz_panel, 1);
@@ -101,7 +92,7 @@ class Vyrobok : public Process
             (Q_Z2_zas.GetFirst())->Activate();
         }
 
-        Wait(Normal(75.5, 5));
+        Wait(Normal(75.5/2, 5)); 
         if (Zasobnik_pred_Z3.Full())
         {
             Into(Q_Z3_zas);
@@ -383,6 +374,23 @@ int main(int argc, char **argv) // popis experimentu
         // experiment 3
         run_sim(cislo_exp);
         break;
+    case 4:
+        // experiment 4
+        run_sim(cislo_exp);
+        break;
+    case 5:
+        // experiment 5
+        run_sim(cislo_exp);
+        break;
+    case 6:
+        // experiment 6
+        run_sim(cislo_exp);
+        break;
+    case 7:
+        // experiment 7
+        run_sim(cislo_exp);
+        break;
+
 
     default:
         fprintf(stderr, "ERROR: Zle cislo experimentu\n");
