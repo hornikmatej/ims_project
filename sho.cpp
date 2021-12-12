@@ -11,16 +11,12 @@ jednotky času v systeme su minuty
 #include <stdlib.h>
 #include <iostream>
 
-
-
 int POC_STROJOV_MONTAZ_PANEL = 3;
-int POC_STROJOV_MONTAZ_PODSTAVA = 5; 
-int POC_STROJOV_MONTAZ_KABLE = 5;
+int POC_STROJOV_MONTAZ_PODSTAVA = 5;
+int POC_STROJOV_MONTAZ_KABLE = 20;
 int POC_STROJOV_MONTAZ_ZADNY_KRYT = 2;
 int POC_STROJOV_MONTAZ_KLAPKY = 2;
 int POC_STROJOV_MONTAZ_PREDNE_DVERE = 4;
-
-
 
 //stroje v zavode
 Store Montaz_panel("Z1", POC_STROJOV_MONTAZ_PANEL);
@@ -32,10 +28,10 @@ Store Montaz_klapky("Z6", POC_STROJOV_MONTAZ_KLAPKY);
 Store Montaz_predne_dvere("Z7", POC_STROJOV_MONTAZ_PREDNE_DVERE);
 Facility Otocna_panelov("Z8");
 
-
 //zasobniky na linke
 Store Zasobnik_pred_Z2("Zasobnik pred Z2", 9);
 Store Zasobnik_pred_Z3("Zasobnik pred Z3", 2);
+Facility Zasobnik_pred_Z4("Zasobnik pred Z4");
 Facility Zasobnik_pred_Z5("Zasobnik pred Z5");
 Facility Zasobnik_pred_Z6("Zasobnik pred Z6");
 Facility Zasobnik_pred_Z7("Zasobnik pred Z7");
@@ -45,6 +41,8 @@ Queue Q_Z2;
 Queue Q_Z2_zas;
 Queue Q_Z3;
 Queue Q_Z3_zas;
+Queue Q_Z4;
+Queue Q_Z4_zas;
 Queue Q_Z5;
 Queue Q_Z5_zas;
 Queue Q_Z6;
@@ -58,7 +56,6 @@ Histogram celk("Celkova doba v systeme", 200, 20, 20);
 
 unsigned int pocet_vyrobkov_vo_vyrobe = 0;
 unsigned int pocet_hotovych_vyrobkov = 0;
-
 
 class Vyrobok : public Process
 {
@@ -136,14 +133,35 @@ class Vyrobok : public Process
             (Q_Z3_zas.GetFirst())->Activate();
         }
         Wait(Uniform(3, 5));
+        if (Zasobnik_pred_Z4.Busy())
+        {
+            Into(Q_Z4_zas);
+            Passivate();
+        }
         Release(Zeriav);
 
         if (Q_Z3.Length() > 0)
         {
             (Q_Z3.GetFirst())->Activate();
         }
+        if (Q_Z4.Length() > 0 && Montaz_kable.Capacity() != Montaz_kable.Used())
+        {
+            (Q_Z4.GetFirst())->Activate();
+        }
+
+        else if (Montaz_kable.Capacity() == Montaz_kable.Used() && !Zasobnik_pred_Z4.Busy())
+        {
+            Seize(Zasobnik_pred_Z4);
+            Into(Q_Z4);
+            Passivate();
+            Release(Zasobnik_pred_Z4);
+        }
         // Z4
         Enter(Montaz_kable, 1);
+        if (Q_Z4_zas.Length() > 0)
+        {
+            (Q_Z4_zas.GetFirst())->Activate();
+        }
         Wait(Normal(30.9, 5));
         if (Zasobnik_pred_Z5.Busy())
         {
@@ -151,6 +169,11 @@ class Vyrobok : public Process
             Passivate();
         }
         Leave(Montaz_kable, 1);
+
+        if (Q_Z4.Length() > 0)
+        {
+            (Q_Z4.GetFirst())->Activate();
+        }
 
         if (Q_Z5.Length() > 0 && Montaz_zadny_kryt.Capacity() != Montaz_zadny_kryt.Used())
         {
@@ -223,7 +246,7 @@ class Vyrobok : public Process
         {
             (Q_Z7.GetFirst())->Activate();
         }
-        else if (Montaz_predne_dvere.Capacity() == Montaz_predne_dvere.Used() && !Zasobnik_pred_Z6.Busy())
+        else if (Montaz_predne_dvere.Capacity() == Montaz_predne_dvere.Used() && !Zasobnik_pred_Z7.Busy())
         {
             Seize(Zasobnik_pred_Z7);
             Into(Q_Z7);
@@ -293,14 +316,15 @@ class Prichody : public Event
             for (int i = 1; i < pocet + 1; i++)
             {
                 (new Vyrobok)->Activate();
-                pocet_vyrobkov_vo_vyrobe ++;
+                pocet_vyrobkov_vo_vyrobe++;
             }
         }
         Activate(Time + 1);
     } //Behavior
 };    //Prichody
 
-void print_stats(){
+void print_stats()
+{
     printf("Pocet hotovych vyrobkov = %u\n", pocet_hotovych_vyrobkov);
     printf("Pocet vyrobkov vo vyrobe(nehotove kusy) = %u\n", pocet_vyrobkov_vo_vyrobe - pocet_hotovych_vyrobkov);
     celk.Output();
@@ -309,6 +333,7 @@ void print_stats(){
     Montaz_podstava.Output();
     Zasobnik_pred_Z3.Output();
     Zeriav.Output();
+    Zasobnik_pred_Z4.Output();
     Montaz_kable.Output();
     Zasobnik_pred_Z5.Output();
     Montaz_zadny_kryt.Output();
@@ -320,9 +345,10 @@ void print_stats(){
     Otocna_panelov.Output();
 }
 
-void run_sim(int cislo_exp){
+void run_sim(int cislo_exp)
+{
     SetOutput(("experiment" + std::to_string(cislo_exp) + ".dat").c_str());
-    Init(0, 1440 * 30); // simulacia 1 mesiac
+    Init(0, 1440 * 30);         // simulacia 1 mesiac
     (new Prichody)->Activate(); // start generatora
     Run();
     print_stats();
@@ -330,37 +356,39 @@ void run_sim(int cislo_exp){
 
 int main(int argc, char **argv) // popis experimentu
 {
-    if (argc != 2){
+    if (argc != 2)
+    {
         fprintf(stderr, "ERROR: Zly vstupny argument\n");
         exit(1);
     }
     int cislo_exp = atoi(argv[1]);
-    if (cislo_exp == 0){
+    if (cislo_exp == 0)
+    {
         fprintf(stderr, "ERROR: Zla vstupna hodnota\n");
         exit(1);
     }
-    
-    switch (cislo_exp){
-        case 1:
-            // experiment 1
-            run_sim(cislo_exp);
-            break;
-        case 2:
-            // experiment 2
-            POC_STROJOV_MONTAZ_PODSTAVA = 4;
-            run_sim(cislo_exp);
-            break;
-        case 3:
-            // experiment 3
-            run_sim(cislo_exp);
-            break;
-        
-        default:
-            fprintf(stderr, "ERROR: Zle cislo experimentu\n");
-            exit(1);
-            break;
+
+    switch (cislo_exp)
+    {
+    case 1:
+        // experiment 1
+        run_sim(cislo_exp);
+        break;
+    case 2:
+        // experiment 2
+        POC_STROJOV_MONTAZ_PODSTAVA = 4;
+        run_sim(cislo_exp);
+        break;
+    case 3:
+        // experiment 3
+        run_sim(cislo_exp);
+        break;
+
+    default:
+        fprintf(stderr, "ERROR: Zle cislo experimentu\n");
+        exit(1);
+        break;
     }
 
     return 0;
 }
-
