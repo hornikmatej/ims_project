@@ -92,7 +92,7 @@ class Vyrobok : public Process
             (Q_Z2_zas.GetFirst())->Activate();
         }
 
-        Wait(Normal(75.5/2, 5)); 
+        Wait(Normal(75.5, 5));
         if (Zasobnik_pred_Z3.Full())
         {
             Into(Q_Z3_zas);
@@ -347,6 +347,13 @@ void run_sim(int cislo_exp)
 
 int main(int argc, char **argv) // popis experimentu
 {
+
+    if (argc != 1)
+    {
+        fprintf(stderr, "ERROR: Zly vstupny argument\n");
+        exit(1);
+    }
+    /*
     if (argc != 2)
     {
         fprintf(stderr, "ERROR: Zly vstupny argument\n");
@@ -391,12 +398,12 @@ int main(int argc, char **argv) // popis experimentu
         run_sim(cislo_exp);
         break;
 
-
     default:
         fprintf(stderr, "ERROR: Zle cislo experimentu\n");
         exit(1);
         break;
-    }
+    }*/
+    run_sim(1);
 
     return 0;
 }
