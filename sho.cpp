@@ -338,7 +338,7 @@ void print_stats()
 
 void run_sim(int cislo_exp)
 {
-    SetOutput(("experiment" + std::to_string(cislo_exp) + ".dat").c_str());
+    //SetOutput(("experiment" + std::to_string(cislo_exp) + ".dat").c_str());
     Init(0, 1440 * 30);         // simulacia 1 mesiac
     (new Prichody)->Activate(); // start generatora
     Run();
